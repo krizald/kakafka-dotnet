@@ -10,5 +10,8 @@ services:
       - "9092"
       - "2181"
   test-kafka-console:
-    container_name: test-kafka-console
-    build: .
+    build:
+      context: .
+      dockerfile: ./TestKafka/Dockerfile
+    depends_on:
+      - kafka

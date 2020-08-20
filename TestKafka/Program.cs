@@ -69,7 +69,7 @@ namespace TestKafka
                         try
                         {
                             var cr = c.Consume(cts.Token);
-                            Console.WriteLine($"Consumed message '{cr.Value}' at: '{cr.TopicPartitionOffset}'.");
+                            Console.WriteLine($"Consumed message '{cr.Message.Value}' at: '{cr.TopicPartitionOffset}'.");
                         }
                         catch (ConsumeException e)
                         {
