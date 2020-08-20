@@ -9,13 +9,6 @@ services:
     expose:
       - "9092"
       - "2181"
-    networks:
-      - kafka_default
   test-kafka-console:
     container_name: test-kafka-console
     build: .
-    networks:
-      - kafka_default
-networks:
-  kafka_default:
-    external: false
