@@ -13,8 +13,9 @@ namespace TestKafka
             //await SampleConsumer("192.168.1.17:9092", "DevOps");
             // await SampleProducer("localhost:9092", "DevOps", "test12345");
             // await SampleConsumer("localhost:9092", "DevOps");
-            await SampleProducer("kafka:9092", "DevOps", "test1234545");
-            await SampleConsumer("kafka:9092", "DevOps");
+            await SampleProducer("kafka:9092", "DevOps", "test");
+            //await SampleProducer("kafka:9092", "DevOps", "test"+ rnd.Next(0,10000).ToString());
+            //await SampleConsumer("kafka:9092", "DevOps");
         }
 
         private static async Task SampleProducer(string ip, string topic, string message)
@@ -24,12 +25,18 @@ namespace TestKafka
             // If serializers are not specified, default serializers from
             // `Confluent.Kafka.Serializers` will be automatically used where
             // available. Note: by default strings are encoded as UTF8.
-            using (var p = new ProducerBuilder<Null, string>(config).Build())
+            using (var p = new ProducerBuilder<string, string>(config).Build())
             {
                 try
                 {
-                    var dr = await p.ProduceAsync(topic, new Message<Null, string> { Value = message });
-                    Console.WriteLine($"Delivered '{dr.Value}' to '{dr.TopicPartitionOffset}'");
+                    var rnd = new Random();
+                    var loop = rnd.Next(10, 20);
+                    for (int i = 0; i < loop; i++)
+                    {
+                        var key = Guid.NewGuid();
+                        var dr = await p.ProduceAsync(topic, new Message<string, string> { Key = key.ToString(), Value = $"{message} {rnd.Next(1000,9999)}" });
+                        Console.WriteLine($"Delivered '{dr.Key}: {dr.Value}' to '{dr.TopicPartitionOffset}'");
+                    }
                 }
                 catch (ProduceException<Null, string> e)
                 {
@@ -52,7 +59,7 @@ namespace TestKafka
                 AutoOffsetReset = AutoOffsetReset.Earliest,
             };
 
-            using (var c = new ConsumerBuilder<Ignore, string>(conf).Build())
+            using (var c = new ConsumerBuilder<string, string>(conf).Build())
             {
                 c.Subscribe(topic);
 
@@ -69,7 +76,7 @@ namespace TestKafka
                         try
                         {
                             var cr = c.Consume(cts.Token);
-                            Console.WriteLine($"Consumed message '{cr.Message.Value}' at: '{cr.TopicPartitionOffset}'.");
+                            Console.WriteLine($"Consumed message '{cr.Message.Key}:{cr.Message.Value}' at: '{cr.TopicPartitionOffset}'.");
                         }
                         catch (ConsumeException e)
                         {

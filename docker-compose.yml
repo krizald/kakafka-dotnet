@@ -9,9 +9,17 @@ services:
     expose:
       - "9092"
       - "2181"
+      
   test-kafka-console:
     build:
       context: .
       dockerfile: ./TestKafka/Dockerfile
+    depends_on:
+      - kafka
+
+  kafka_consumer_sample:
+    build:
+      context: .
+      dockerfile: ./KafkaConsumerSample/Dockerfile
     depends_on:
       - kafka
